@@ -5,3 +5,4 @@ dist/
 django_pyodbc.egg-info/
 .eggs/
 .idea
+tests

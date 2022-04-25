@@ -41,13 +41,15 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import sys
-
+from past.builtins import basestring
 # native modules to substititute legacy Django modules
 try:
     from hashlib import md5 as md5_constructor
 except ImportError:
     from django.utils.hashcompat import md5_constructor
 
+if sys.version_info[0] >= 3:
+    unicode = str
 try:
     from itertools import product
 except ImportError:
@@ -104,8 +106,11 @@ try:
         from itertools import izip_longest as zip_longest
 except ImportError:
     # Python2.5 or earlier
-    from itertools import chain, izip, repeat
-
+    from itertools import chain, repeat
+    try:
+        from itertools import izip as zip
+    except ImportError: # will be 3.x series
+        pass
     # derived from Python2.7 documentation
     def zip_longest(*args, **kwds):
         # izip_longest('ABCD', 'xy', fillvalue='-') --> Ax By C- D-
@@ -117,7 +122,7 @@ except ImportError:
         fillers = repeat(fillvalue)
         iters = [chain(it, sentinel(), fillers) for it in args]
         try:
-            for tup in izip(*iters):
+            for tup in zip(*iters):
                 yield tup
         except IndexError:
             pass

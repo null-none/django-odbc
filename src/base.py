@@ -90,21 +90,6 @@ except ImportError:
         BaseDatabaseValidation,
     )
 
-if DjangoVersion[:2] == (2, 0):
-    _DJANGO_VERSION = 20
-elif DjangoVersion[:2] == (3, 1):
-    _DJANGO_VERSION = 31
-else:
-    if DjangoVersion[0] == 1:
-        raise ImproperlyConfigured(
-            "Django %d.%d " % DjangoVersion[:2]
-            + "is not supported on 2.+ versions of django-pyodbc.  Please look "
-            + "into the 1.x versions of django-pyodbc to see if your 1.x "
-            + "version of Django is supported by django-pyodbc"
-        )
-    else:
-        raise ImproperlyConfigured("Django %d.%d is not supported." % DjangoVersion[:2])
-
 
 DatabaseError = Database.Error
 IntegrityError = Database.IntegrityError
@@ -135,7 +120,6 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
 
 class DatabaseWrapper(BaseDatabaseWrapper):
-    _DJANGO_VERSION = _DJANGO_VERSION
     drv_name = None
     driver_supports_utf8 = None
     MARS_Connection = False
@@ -545,7 +529,7 @@ class CursorWrapper(object):
         Decode data coming from the database if needed and convert rows to tuples
         (pyodbc Rows are not sliceable).
         """
-        needs_utc = _DJANGO_VERSION >= 14 and settings.USE_TZ
+        needs_utc = settings.USE_TZ
         if not (needs_utc or not self.driver_supports_utf8):
             return tuple(rows)
         # FreeTDS (and other ODBC drivers?) don't support Unicode yet, so we
